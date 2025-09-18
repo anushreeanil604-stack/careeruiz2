@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Path Discovery Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-counter {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .question {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8f0ff;
+        }
+
+        .option input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .option label {
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            flex: 1;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .career-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .career-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .career-description {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .career-skills {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .skills-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .restart-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .question {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="question-counter" id="questionCounter">Question 1 of 8</div>
+        
+        <div id="quizContent">
+            <h1>🎯 Career Path Discovery Quiz</h1>
+            <div class="question" id="questionText">Let's find your ideal career path! Click "Start Quiz" to begin.</div>
+            
+            <div class="options" id="optionsContainer" style="display: none;"></div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" style="display: none;">Previous</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h1>🎉 Your Career Recommendations</h1>
+            <div id="careerResults"></div>
+            <button class="btn restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 'interests',
+                text: 'Which subjects do you enjoy most? (Select all that apply)',
+                type: 'checkbox',
+                options: [
+                    { value: 'science', text: 'Science & Research', categories: ['technical', 'healthcare'] },
+                    { value: 'arts', text: 'Arts & Design', categories: ['creative'] },
+                    { value: 'business', text: 'Business & Economics', categories: ['business'] },
+                    { value: 'computers', text: 'Computers & Technology', categories: ['technical'] },
+                    { value: 'math', text: 'Mathematics & Analytics', categories: ['technical', 'business'] },
+                    { value: 'people', text: 'Working with People', categories: ['healthcare', 'business'] }
+                ]
+            },
+            {
+                id: 'workStyle',
+                text: 'What work environment do you prefer?',
+                type: 'radio',
+                options: [
+                    { value: 'team', text: 'Collaborative team environment', categories: ['business', 'healthcare'] },
+                    { value: 'independent', text: 'Independent work with minimal supervision', categories: ['technical', 'creative'] },
+                    { value: 'mixed', text: 'Mix of teamwork and solo projects', categories: ['technical', 'business'] },
+                    { value: 'leadership', text: 'Leading and managing others', categories: ['business'] }
+                ]
+            },
+            {
+                id: 'problemSolving',
+                text: 'How do you prefer to solve problems?',
+                type: 'radio',
+                options: [
+                    { value: 'logical', text: 'Logical analysis and data', categories: ['technical'] },
+                    { value: 'creative', text: 'Creative and innovative approaches', categories: ['creative'] },
+                    { value: 'collaborative', text: 'Discussion and collaboration', categories: ['business', 'healthcare'] },
+                    { value: 'research', text: 'Research and evidence-based solutions', categories: ['healthcare', 'technical'] }
+                ]
+            },
+            {
+                id: 'motivation',
+                text: 'What motivates you most in work?',
+                type: 'radio',
+                options: [
+                    { value: 'helping', text: 'Helping others and making a difference', categories: ['healthcare'] },
+                    { value: 'creating', text: 'Creating something new and original', categories: ['creative', 'technical'] },
+                    { value: 'achieving', text: 'Achieving goals and financial success', categories: ['business'] },
+                    { value: 'learning', text: 'Continuous learning and growth', categories: ['technical', 'healthcare'] }
+                ]
+            },
+            {
+                id: 'skills',
+                text: 'Which skills do you excel at? (Select all that apply)',
+                type: 'checkbox',
+                options: [
+                    { value: 'communication', text: 'Communication & Presentation', categories: ['business', 'healthcare'] },
+                    { value: 'technical', text: 'Technical & Programming', categories: ['technical'] },
+                    { value: 'artistic', text: 'Artistic & Design', categories: ['creative'] },
+                    { value: 'analytical', text: 'Analytical & Problem-solving', categories: ['technical', 'business'] },
+                    { value: 'empathy', text: 'Empathy & Understanding others', categories: ['healthcare'] },
+                    { value: 'leadership', text: 'Leadership & Management', categories: ['business'] }
+                ]
+            },
+            {
+                id: 'workPace',
+                text: 'What work pace suits you best?',
+                type: 'radio',
+                options: [
+                    { value: 'fast', text: 'Fast-paced with tight deadlines', categories: ['business', 'technical'] },
+                    { value: 'steady', text: 'Steady, consistent workflow', categories: ['healthcare', 'technical'] },
+                    { value: 'flexible', text: 'Flexible with creative bursts', categories: ['creative'] },
+                    { value: 'varied', text: 'Varied pace depending on projects', categories: ['business', 'creative'] }
+                ]
+            },
+            {
+                id: 'impact',
+                text: 'What kind of impact do you want to make?',
+                type: 'radio',
+                options: [
+                    { value: 'individual', text: 'Direct impact on individuals', categories: ['healthcare'] },
+                    { value: 'society', text: 'Broad impact on society', categories: ['technical', 'healthcare'] },
+                    { value: 'business', text: 'Economic and business impact', categories: ['business'] },
+                    { value: 'cultural', text: 'Cultural and artistic impact', categories: ['creative'] }
+                ]
+            },
+            {
+                id: 'learning',
+                text: 'How do you prefer to learn new things?',
+                type: 'radio',
+                options: [
+                    { value: 'hands-on', text: 'Hands-on practice and experimentation', categories: ['technical', 'creative'] },
+                    { value: 'structured', text: 'Structured courses and formal education', categories: ['healthcare', 'business'] },
+                    { value: 'mentorship', text: 'Mentorship and guidance from experts', categories: ['business', 'healthcare'] },
+                    { value: 'self-directed', text: 'Self-directed research and exploration', categories: ['technical', 'creative'] }
+                ]
+            }
+        ];
+
+        const careerPaths = {
+            technical: {
+                title: 'Technology & Engineering',
+                description: 'You have a strong aptitude for technical problem-solving, logical thinking, and working with complex systems. You enjoy building, analyzing, and optimizing solutions.',
+                careers: ['Software Developer', 'Data Scientist', 'Cybersecurity Analyst', 'Systems Engineer', 'AI/ML Engineer'],
+                skills: 'Programming, analytical thinking, problem-solving, attention to detail, continuous learning'
+            },
+            creative: {
+                title: 'Creative & Design',
+                description: 'You thrive on creativity, innovation, and artistic expression. You enjoy bringing ideas to life through visual, written, or experiential mediums.',
+                careers: ['Graphic Designer', 'UX/UI Designer', 'Content Creator', 'Marketing Creative', 'Art Director'],
+                skills: 'Creative thinking, visual design, storytelling, innovation, artistic abilities'
+            },
+            business: {
+                title: 'Business & Leadership',
+                description: 'You excel at strategic thinking, leadership, and driving results. You enjoy working with people, managing projects, and achieving business objectives.',
+                careers: ['Project Manager', 'Business Analyst', 'Sales Manager', 'Consultant', 'Entrepreneur'],
+                skills: 'Leadership, strategic thinking, communication, negotiation, business acumen'
+            },
+            healthcare: {
+                title: 'Healthcare & Human Services',
+                description: 'You are motivated by helping others and making a positive impact on people\'s lives. You have strong empathy and enjoy working in service-oriented roles.',
+                careers: ['Healthcare Professional', 'Counselor', 'Social Worker', 'Teacher', 'Non-profit Manager'],
+                skills: 'Empathy, communication, patience, problem-solving, dedication to helping others'
+            }
+        };
+
+        let currentQuestion = 0;
+        let responses = {};
+        let quizStarted = false;
+
+        function startQuiz() {
+            quizStarted = true;
+            currentQuestion = 0;
+            responses = {};
+            showQuestion();
+            document.getElementById('nextBtn').textContent = 'Next';
+            document.getElementById('nextBtn').onclick = nextQuestion;
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const questionCounter = document.getElementById('questionCounter');
+            const questionText = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Update progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update question counter
+            questionCounter.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+
+            // Update question text
+            questionText.textContent = question.text;
+
+            // Show options container
+            optionsContainer.style.display = 'block';
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Create options
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                
+                const input = document.createElement('input');
+                input.type = question.type;
+                input.name = question.id;
+                input.value = option.value;
+                input.id = `${question.id}_${index}`;
+
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.textContent = option.text;
+
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+
+                // Add click handler for the entire option div
+                optionDiv.addEventListener('click', function(e) {
+                    if (e.target !== input) {
+                        if (question.type === 'radio') {
+                            input.checked = true;
+                        } else {
+                            input.checked = !input.checked;
+                        }
+                    }
+                    updateOptionStyles();
+                });
+
+                input.addEventListener('change', updateOptionStyles);
+
+                optionsContainer.appendChild(optionDiv);
+
+                // Restore previous selection
+                if (responses[question.id]) {
+                    if (question.type === 'radio' && responses[question.id] === option.value) {
+                        input.checked = true;
+                    } else if (question.type === 'checkbox' && responses[question.id].includes(option.value)) {
+                        input.checked = true;
+                    }
+                }
+            });
+
+            // Update navigation buttons
+            prevBtn.style.display = currentQuestion > 0 ? 'block' : 'none';
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? 'Get Results' : 'Next';
+
+            updateOptionStyles();
+        }
+
+        function updateOptionStyles() {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                const input = option.querySelector('input');
+                if (input.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            const question = questions[currentQuestion];
+            const selectedOptions = [];
+
+            // Collect responses
+            const inputs = document.querySelectorAll(`input[name="${question.id}"]:checked`);
+            inputs.forEach(input => {
+                selectedOptions.push(input.value);
+            });
+
+            // Validate that at least one option is selected
+            if (selectedOptions.length === 0) {
+                alert('Please select at least one option before continuing.');
+                return;
+            }
+
+            // Store response
+            if (question.type === 'radio') {
+                responses[question.id] = selectedOptions[0];
+            } else {
+                responses[question.id] = selectedOptions;
+            }
+
+            // Move to next question or show results
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            // Calculate career scores
+            const scores = {
+                technical: 0,
+                creative: 0,
+                business: 0,
+                healthcare: 0
+            };
+
+            // Analyze responses
+            questions.forEach(question => {
+                const response = responses[question.id];
+                const responseArray = Array.isArray(response) ? response : [response];
+
+                responseArray.forEach(value => {
+                    const option = question.options.find(opt => opt.value === value);
+                    if (option) {
+                        option.categories.forEach(category => {
+                            scores[category]++;
+                        });
+                    }
+                });
+            });
+
+            // Find top career paths
+            const sortedCareers = Object.entries(scores)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 2);
+
+            // Display results
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            const resultsContainer = document.getElementById('careerResults');
+            resultsContainer.innerHTML = '';
+
+            sortedCareers.forEach(([career, score], index) => {
+                if (score > 0) {
+                    const careerData = careerPaths[career];
+                    const careerCard = document.createElement('div');
+                    careerCard.className = 'career-card';
+                    
+                    careerCard.innerHTML = `
+                        <div class="career-title">${index === 0 ? '🥇 ' : '🥈 '}${careerData.title}</div>
+                        <div class="career-description">${careerData.description}</div>
+                        <div><strong>Potential Careers:</strong> ${careerData.careers.join(', ')}</div>
+                        <div class="career-skills">
+                            <div class="skills-title">Key Skills to Develop:</div>
+                            <div>${careerData.skills}</div>
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(careerCard);
+                }
+            });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            responses = {};
+            quizStarted = false;
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('optionsContainer').style.display = 'none';
+            
+            document.getElementById('questionCounter').textContent = 'Question 1 of 8';
+            document.getElementById('questionText').textContent = "Let's find your ideal career path! Click \"Start Quiz\" to begin.";
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('nextBtn').textContent = 'Start Quiz';
+            document.getElementById('nextBtn').onclick = startQuiz;
+            document.getElementById('prevBtn').style.display = 'none';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9812409a55d8ff9d',t:'MTc1ODIxMzI4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
